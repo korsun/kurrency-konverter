@@ -1,41 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import { 
+	Button, 
+	Flex, 
+	Heading, 
+	VStack 
+} from '@chakra-ui/react';
+import CurrencyInput from './components/CurrencyInput';
+import CurrencySelect from './components/CurrencySelect';
 
-const API_KEY = 'df6831b373d143a6ba70c3b88c270bad';
-const BASE = 'USD'; // USD only in free plan
+import { TResponse, TRates, TAccounts, TCurrency, TType } from './types';
+import { API_KEY, BASE, SYMBOLS } from './constants';
 
-type TResponse = {
-	base: typeof BASE,
-	rates: {
-		EUR: number,
-		GBP: number
-	}
-}
-
-type TRates = {
-	USD: 1,
-	EUR: number,
-	GBP: number
-}
-
-type TAccounts = {
-	USD: number,
-	EUR: number,
-	GBP: number
-}
-
-type TCurrency = 'USD' | 'EUR' | 'GBP'
-
-type TType = 'from' | 'to'
+const parse = (value: string) => value.replace(/^-+/u, '');
 
 const App = (): JSX.Element => {
 	const [rates, setRates] = useState<TRates>({ USD: 1, EUR: 0, GBP: 0 });
-	const [accounts, setAccounts] = useState<TAccounts>({ USD: 100, EUR: 200, GBP: 0 });
+	const [accounts, setAccounts] = useState<TAccounts>({ USD: '100', EUR: '200', GBP: '0' });
 	const [from, setFrom] = useState<TCurrency>(BASE);
 	const [to, setTo] = useState<TCurrency>('EUR');
-	const [fromVal, setFromVal] = useState<number>(accounts[from]);
-	const [toVal, setToVal] = useState<number>(accounts[to]);
+	const [fromVal, setFromVal] = useState<string>(accounts[from]);
+	const [toVal, setToVal] = useState<string>(accounts[to]);
 	const [error, setError] = useState<string>('');
+
+	const getTypedKeys = Object.keys as <T extends Record<string, unknown>>(obj: T) => Array<keyof T>;
+	const accountsKeys = getTypedKeys(accounts);
 
 	const fetchRates = () => {
 		fetch(`https://openexchangerates.org/api/latest.json?app_id=${API_KEY}&base=${BASE.toLowerCase()}`)
@@ -60,70 +48,87 @@ const App = (): JSX.Element => {
 
 	const handleSelect = (type: TType) => (e: React.SyntheticEvent) => {
 		const target = e.target as HTMLSelectElement;
+		const value = target.value as TCurrency;
 
-		if (target.value === 'USD' || target.value === 'EUR' || target.value === 'GBP') {
-			if (type === 'from') {
-				setFrom(target.value);
-				setFromVal(accounts[target.value]);
-			} else {
-				setTo(target.value);
-				setToVal(accounts[target.value]);
-			}
+		// avoids smth like USD -> USD trades
+		const nextCurrency = accountsKeys[accountsKeys.indexOf(value) + 1] || 'USD';
+
+		if (type === 'from') {
+			setFrom(value);
+			setFromVal(accounts[value]);
+			setTo(nextCurrency);
+		} else {
+			setTo(value);
+			setToVal(accounts[value]);
+			setFrom(nextCurrency);
 		}
 	};
 
-	const handleChange = (type: TType) => (e: React.SyntheticEvent) => {
-		const target = e.target as HTMLInputElement;
-		const value = Number(target.value);
+	const handleChange = (type: TType) => (strValue: string) => {
+		const value = parse(strValue);
+		const [, decimals] = value.split('.');
+
+		if (decimals && decimals.length > 2) {
+			return;
+		}
 
 		if (type === 'from') {
 			setFromVal(value);
-			setToVal(value * rates[to]);
+			setToVal(String((+value * rates[to]).toFixed(2)));
 		} else {
 			setToVal(value);
-			setFromVal(value * rates[from]);
+			setFromVal(String((+value * rates[from]).toFixed(2)));
 		}
 	};
 
 	const handleClick = () => {
-		setAccounts({ ...accounts, [from]: accounts[from] - fromVal, [to]: accounts[to] + toVal });
+		setAccounts({ 
+			...accounts, 
+			[from]: +accounts[from] - +fromVal, 
+			[to]: +accounts[to] + +toVal 
+		});
 	};
 
 	console.log(rates);
 
-	return <div>
-		<h1>Sell {from}</h1>
-		<span data-testid='rate'>1 {from} = {rates[to]} {to}</span>
-		<div>
-			<select name='select-from' aria-label='select-from' value={from} onChange={handleSelect('from')}>
-				<option value='USD'>USD</option>
-				<option value='EUR'>EUR</option>
-				<option value='GBP'>GBP</option>
-			</select>
-			<input 
-				type='number'
-				aria-label='from'
+	return <VStack align='center' spacing={2}>
+		<Heading as='h1'>Sell {from}</Heading>
+		<span data-testid='rate'>{SYMBOLS[from]}1 = {SYMBOLS[to]}{rates[to]}</span>
+
+		<Flex>
+			<div data-testid='account-from'>Balance: {SYMBOLS[from]}{accounts[from]}</div>
+			<CurrencySelect
+				type='from'
+				value={from}
+				currencies={accountsKeys}
+				onChange={handleSelect('from')}
+			/>
+			<CurrencyInput 
+				type='from'
 				value={fromVal}
+				max={+accounts[from]}
 				onChange={handleChange('from')}
 			/>
-			<span data-testid='account-from'>{accounts[from]} {from}</span>
-		</div>
-		<div>
-			<select name='select-to' aria-label='select-to' value={to} onChange={handleSelect('to')}>
-				<option value='USD'>USD</option>
-				<option value='EUR'>EUR</option>
-				<option value='GBP'>GBP</option>
-			</select>
-			<input
-				type='number'
-				aria-label='to'
+		</Flex>
+
+		<Flex>
+			<div data-testid='account-to'>Balance: {SYMBOLS[to]}{accounts[to]}</div>
+			<CurrencySelect
+				type='to'
+				value={to}
+				currencies={accountsKeys}
+				onChange={handleSelect('to')}
+			/>
+			<CurrencyInput
+				type='to'
 				value={toVal}
+				max={+accounts[to]}
 				onChange={handleChange('to')}
 			/>
-			<span data-testid='account-to'>{accounts[to]} {to}</span>
-		</div>
-		<button onClick={handleClick}>Sell</button>
-	</div>;
+		</Flex>
+
+		<Button onClick={handleClick}>Sell</Button>
+	</VStack>;
 };
 
 export default App;
