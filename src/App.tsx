@@ -20,6 +20,7 @@ const App = (): JSX.Element => {
 	const [to, setTo] = useState<TCurrency>('EUR');
 	const [fromVal, setFromVal] = useState<string>(accounts[from]);
 	const [toVal, setToVal] = useState<string>(accounts[to]);
+	const [isReversed, setReversed] = useState<boolean>(false);
 	const [error, setError] = useState<string>('');
 
 	const getTypedKeys = Object.keys as <T extends Record<string, unknown>>(obj: T) => Array<keyof T>;
@@ -85,11 +86,39 @@ const App = (): JSX.Element => {
 	};
 
 	const handleClick = () => {
+		const fromValNum = !isReversed ? -Number(fromVal) : Number(fromVal);
+		const toValNum = !isReversed ? Number(toVal) : -Number(toVal);
+
 		setAccounts({ 
 			...accounts, 
-			[from]: +accounts[from] - +fromVal, 
-			[to]: +accounts[to] + +toVal 
+			[from]: +accounts[from] + fromValNum, 
+			[to]: +accounts[to] + toValNum 
 		});
+	};
+
+	const handleReverse = () => setReversed(!isReversed);
+
+	const renderBlock = (type: TType) => {
+		const key = type === 'from' ? from : to;
+		const inputVal = type === 'from' ? fromVal : toVal;
+
+		return <Flex>
+			<div data-testid={`account-${type}`}>
+				Balance: {SYMBOLS[key]}{accounts[key]}
+			</div>
+			<CurrencySelect
+				type={type}
+				value={key}
+				currencies={accountsKeys}
+				onChange={handleSelect(type)}
+			/>
+			<CurrencyInput
+				type={type}
+				value={inputVal}
+				max={+accounts[key]}
+				onChange={handleChange(type)}
+			/>
+		</Flex>;
 	};
 
 	console.log(rates);
@@ -98,39 +127,12 @@ const App = (): JSX.Element => {
 		<Heading as='h1'>Sell {from}</Heading>
 		<span data-testid='rate'>{SYMBOLS[from]}1 = {SYMBOLS[to]}{(rates[to] / rates[from]).toFixed(6)}</span>
 
-		<Flex>
-			<div data-testid='account-from'>Balance: {SYMBOLS[from]}{accounts[from]}</div>
-			<CurrencySelect
-				type='from'
-				value={from}
-				currencies={accountsKeys}
-				onChange={handleSelect('from')}
-			/>
-			<CurrencyInput 
-				type='from'
-				value={fromVal}
-				max={+accounts[from]}
-				onChange={handleChange('from')}
-			/>
-		</Flex>
+		{renderBlock('from')}
+		{renderBlock('to')}
 
-		<Flex>
-			<div data-testid='account-to'>Balance: {SYMBOLS[to]}{accounts[to]}</div>
-			<CurrencySelect
-				type='to'
-				value={to}
-				currencies={accountsKeys}
-				onChange={handleSelect('to')}
-			/>
-			<CurrencyInput
-				type='to'
-				value={toVal}
-				max={+accounts[to]}
-				onChange={handleChange('to')}
-			/>
-		</Flex>
+		<Button onClick={handleReverse}>{!isReversed ? '⬇️' : '⬆️'}</Button>
 
-		<Button onClick={handleClick}>Sell</Button>
+		<Button onClick={handleClick}>{!isReversed ? `Sell ${from} for ${to}` : `Buy ${from} with ${to}`}</Button>
 	</VStack>;
 };
 
