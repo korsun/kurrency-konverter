@@ -50,17 +50,20 @@ const App = (): JSX.Element => {
 		const target = e.target as HTMLSelectElement;
 		const value = target.value as TCurrency;
 
-		// avoids smth like USD -> USD trades
-		const nextCurrency = accountsKeys[accountsKeys.indexOf(value) + 1] || 'USD';
-
 		if (type === 'from') {
+			if (value === to) {
+				setTo(from);
+			}
+
 			setFrom(value);
 			setFromVal(accounts[value]);
-			setTo(nextCurrency);
 		} else {
+			if (value === from) {
+				setFrom(to);
+			}
+
 			setTo(value);
 			setToVal(accounts[value]);
-			setFrom(nextCurrency);
 		}
 	};
 
@@ -74,10 +77,10 @@ const App = (): JSX.Element => {
 
 		if (type === 'from') {
 			setFromVal(value);
-			setToVal(String((+value * rates[to]).toFixed(2)));
+			setToVal(String((+value * (rates[to] / rates[from])).toFixed(2)));
 		} else {
 			setToVal(value);
-			setFromVal(String((+value * rates[from]).toFixed(2)));
+			setFromVal(String((+value * (rates[from] / rates[to])).toFixed(2)));
 		}
 	};
 
@@ -93,7 +96,7 @@ const App = (): JSX.Element => {
 
 	return <VStack align='center' spacing={2}>
 		<Heading as='h1'>Sell {from}</Heading>
-		<span data-testid='rate'>{SYMBOLS[from]}1 = {SYMBOLS[to]}{rates[to]}</span>
+		<span data-testid='rate'>{SYMBOLS[from]}1 = {SYMBOLS[to]}{(rates[to] / rates[from]).toFixed(6)}</span>
 
 		<Flex>
 			<div data-testid='account-from'>Balance: {SYMBOLS[from]}{accounts[from]}</div>
