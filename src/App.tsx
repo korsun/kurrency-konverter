@@ -93,32 +93,34 @@ const App = (): JSX.Element => {
 
 	return <div>
 		<h1>Sell {from}</h1>
-		<span>1 {from} = {rates[to]} {to}</span>
+		<span data-testid='rate'>1 {from} = {rates[to]} {to}</span>
 		<div>
-			<select name='select-from' id='select-from' value={from} onChange={handleSelect('from')}>
+			<select name='select-from' aria-label='select-from' value={from} onChange={handleSelect('from')}>
 				<option value='USD'>USD</option>
 				<option value='EUR'>EUR</option>
 				<option value='GBP'>GBP</option>
 			</select>
 			<input 
 				type='number'
+				aria-label='from'
 				value={fromVal}
 				onChange={handleChange('from')}
 			/>
-			<span>{accounts[from]} {from}</span>
+			<span data-testid='account-from'>{accounts[from]} {from}</span>
 		</div>
 		<div>
-			<select name='select-to' id='select-to' value={to} onChange={handleSelect('to')}>
+			<select name='select-to' aria-label='select-to' value={to} onChange={handleSelect('to')}>
 				<option value='USD'>USD</option>
 				<option value='EUR'>EUR</option>
 				<option value='GBP'>GBP</option>
 			</select>
 			<input
 				type='number'
+				aria-label='to'
 				value={toVal}
 				onChange={handleChange('to')}
 			/>
-			<span>{accounts[to]} {to}</span>
+			<span data-testid='account-to'>{accounts[to]} {to}</span>
 		</div>
 		<button onClick={handleClick}>Sell</button>
 	</div>;

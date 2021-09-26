@@ -106,6 +106,8 @@ module.exports = {
 		],
 		'indent': ['error', 'tab'],
 		'init-declarations': 'error',
+		'jest/no-focused-tests': 'warn',
+		'jest/no-test-prefixes': 'off',
 		'jsx-quotes': 'off',
 		'key-spacing': 'error',
 		'keyword-spacing': [
