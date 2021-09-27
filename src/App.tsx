@@ -10,6 +10,7 @@ import {
 import CurrencyInput from './components/CurrencyInput';
 import CurrencySelect from './components/CurrencySelect';
 import ArrowIcon from './components/ArrowIcon';
+import ErrorPlaceholder from './components/ErrorPlaceholder';
 
 import { TResponse, TRates, TAccounts, TCurrency, TType } from './types';
 import { API_KEY, BASE, SYMBOLS } from './constants';
@@ -24,7 +25,7 @@ const App = (): JSX.Element => {
 	const [fromVal, setFromVal] = useState<string>('1');
 	const [toVal, setToVal] = useState<string>('0');
 	const [isReversed, setReversed] = useState<boolean>(false);
-	const [error, setError] = useState<string>('');
+	const [hasError, setError] = useState<boolean>(false);
 
 	const getTypedKeys = Object.keys as <T extends Record<string, unknown>>(obj: T) => Array<keyof T>;
 	const accountsKeys = getTypedKeys(accounts);
@@ -41,8 +42,11 @@ const App = (): JSX.Element => {
 					GBP: data.rates.GBP
 				});
 				setToVal(String(data.rates.EUR.toFixed(2)));
+				setError(false);
 			})
-			.catch(err => console.error(err));
+			.catch(() => {
+				setError(true);
+			});
 	};
 
 	useEffect(() => {
@@ -142,6 +146,10 @@ const App = (): JSX.Element => {
 	};
 
 	console.log(rates);
+
+	if (hasError) {
+		return <ErrorPlaceholder />;
+	}
 
 	return <VStack align='center' padding={8} spacing={6}>
 		<Box>

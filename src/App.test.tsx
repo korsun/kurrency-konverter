@@ -25,8 +25,8 @@ afterEach(() => {
 
 describe('normal work', () => {
 
-	it('fetches rates, puts them into the state and displays correctly', () => {
-		const rate = screen.getByTestId('rate');
+	it('fetches rates, puts them into the state and displays correctly', async () => {
+		const rate = await screen.findByTestId('rate');
 		expect(rate).toHaveTextContent('$1 = €0.85');
 		const select = screen.getByLabelText('select-to');
 
@@ -112,6 +112,7 @@ describe('normal work', () => {
 
 describe('crash tests', () => {
 	test.todo('validates the input');
+
 	it('shows error when amount to trade is higher then availability', () => {
 		const selectFrom = screen.getByLabelText('select-from');
 		fireEvent.change(selectFrom, { target: { value: 'GBP' } });
@@ -119,10 +120,12 @@ describe('crash tests', () => {
 		expect(screen.getByLabelText('from')).toBeInvalid();
 		expect(screen.getByLabelText('buy/sell')).toBeDisabled();
 	});
-	xit('handles onfetch error', () => {
+
+	it('handles onfetch error', async () => {
 		globalRef.fetch = jest.fn(() => Promise.reject(new Error('err')));
 		render(<App />);
 
-
+		const placeholder = await screen.findByTestId('error-placeholder');
+		expect(placeholder).toBeInTheDocument();
 	});
 });
