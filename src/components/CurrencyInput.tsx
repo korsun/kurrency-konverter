@@ -9,7 +9,7 @@ import {
 import { TCurrencyInput, TType } from '../types';
 
 const format = (type: TType, value: string) => {
-	if (+value === 0) {
+	if (+value === 0 || value.startsWith('+') || value.startsWith('-')) {
 		return value;
 	}
 
@@ -20,11 +20,8 @@ const CurrencyInput = ({ type, value, max, onChange }: TCurrencyInput): JSX.Elem
 	<NumberInput
 		aria-label={type}
 		value={format(type, value)}
-		min={0}
-		max={max}
 		precision={2}
 		clampValueOnBlur={false}
-		keepWithinRange={false}
 		onChange={onChange}
 	>
 		<NumberInputField />

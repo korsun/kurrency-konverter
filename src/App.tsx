@@ -18,8 +18,8 @@ const App = (): JSX.Element => {
 	const [accounts, setAccounts] = useState<TAccounts>({ USD: '100', EUR: '200', GBP: '0' });
 	const [from, setFrom] = useState<TCurrency>(BASE);
 	const [to, setTo] = useState<TCurrency>('EUR');
-	const [fromVal, setFromVal] = useState<string>(accounts[from]);
-	const [toVal, setToVal] = useState<string>(accounts[to]);
+	const [fromVal, setFromVal] = useState<string>('1');
+	const [toVal, setToVal] = useState<string>('0');
 	const [isReversed, setReversed] = useState<boolean>(false);
 	const [error, setError] = useState<string>('');
 
@@ -35,6 +35,7 @@ const App = (): JSX.Element => {
 					EUR: data.rates.EUR,
 					GBP: data.rates.GBP
 				});
+				setToVal(String(data.rates.EUR.toFixed(2)));
 			})
 			.catch(err => console.error(err));
 	};
@@ -55,16 +56,15 @@ const App = (): JSX.Element => {
 			if (value === to) {
 				setTo(from);
 			}
-
 			setFrom(value);
-			setFromVal(accounts[value]);
+			setToVal(String((+fromVal * (rates[to] / rates[value])).toFixed(2)));
+
 		} else {
 			if (value === from) {
 				setFrom(to);
 			}
-
 			setTo(value);
-			setToVal(accounts[value]);
+			setToVal(String((+fromVal * (rates[value] / rates[from])).toFixed(2)));
 		}
 	};
 
@@ -125,14 +125,19 @@ const App = (): JSX.Element => {
 
 	return <VStack align='center' spacing={2}>
 		<Heading as='h1'>Sell {from}</Heading>
-		<span data-testid='rate'>{SYMBOLS[from]}1 = {SYMBOLS[to]}{(rates[to] / rates[from]).toFixed(6)}</span>
+		<span data-testid='rate'>{SYMBOLS[from]}1 = {SYMBOLS[to]}{(rates[to] / rates[from])}</span>
 
 		{renderBlock('from')}
 		{renderBlock('to')}
 
-		<Button onClick={handleReverse}>{!isReversed ? '⬇️' : '⬆️'}</Button>
+		<Button aria-label='reverse' onClick={handleReverse}>{!isReversed ? '⬇️' : '⬆️'}</Button>
 
-		<Button onClick={handleClick}>{!isReversed ? `Sell ${from} for ${to}` : `Buy ${from} with ${to}`}</Button>
+		<Button
+			aria-label='buy/sell'
+			onClick={handleClick}
+		>
+			{!isReversed ? `Sell ${from} for ${to}` : `Buy ${from} with ${to}`}
+		</Button>
 	</VStack>;
 };
 
