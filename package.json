@@ -2,7 +2,7 @@
   "name": "kurrency-konverter",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https: //korsun.github.io/kurrency-konverter/",
+  "homepage": "https://korsun.github.io/kurrency-konverter/",
   "dependencies": {
     "@chakra-ui/react": "^1.6.8",
     "@emotion/react": "^11",
