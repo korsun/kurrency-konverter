@@ -13,6 +13,7 @@ const mockedResponse = {
 const globalRef: any = global;
 
 beforeEach(() => {
+	jest.useFakeTimers();
 	globalRef.fetch = jest.fn(() => Promise.resolve({
 		json: () => Promise.resolve(mockedResponse)
 	}));
@@ -20,6 +21,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+	jest.useRealTimers();
 	globalRef.fetch.mockClear();
 });
 
@@ -32,6 +34,14 @@ describe('normal work', () => {
 
 		fireEvent.change(select, { target: { value: 'GBP' } });
 		expect(rate).toHaveTextContent('$1 = £0.75');
+	});
+
+	it('makes an API request every 10 seconds', () => {
+		expect(globalRef.fetch).toHaveBeenCalledTimes(1);
+		jest.advanceTimersByTime(10000);
+		expect(globalRef.fetch).toHaveBeenCalledTimes(2);
+		jest.advanceTimersByTime(10000);
+		expect(globalRef.fetch).toHaveBeenCalledTimes(3);
 	});
 
 	it('renders elements with their init values', () => {

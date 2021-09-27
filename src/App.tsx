@@ -50,11 +50,10 @@ const App = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		// const interval = setInterval(fetchRates, 10000);
-
-		// return () => clearInterval(interval);
-
+		const interval = setInterval(fetchRates, 10000);
 		fetchRates();
+
+		return () => clearInterval(interval);
 	}, []);
 
 	const handleSelect = (type: TType) => (e: React.SyntheticEvent) => {
