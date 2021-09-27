@@ -9,7 +9,10 @@ const CurrencySelect = ({ type, value, currencies, onChange }: TCurrencySelect):
 		value={value}
 		onChange={onChange}
 		width='auto'
-		variant='unstyled'
+		variant='flushed'
+		size='lg'
+		focusBorderColor='cyan.400'
+		_hover={{ cursor: 'pointer' }}
 	>
 		{currencies.map(item => <option key={item} value={item}>{item}</option>)}
 	</Select>

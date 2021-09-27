@@ -22,12 +22,15 @@ const CurrencyInput = ({ type, value, max, onChange }: TCurrencyInput): JSX.Elem
 		value={format(type, value)}
 		precision={2}
 		clampValueOnBlur={false}
+		variant='flushed'
+		size='lg'
+		focusBorderColor='cyan.400'
 		onChange={onChange}
 	>
 		<NumberInputField />
 		<NumberInputStepper>
-			<NumberIncrementStepper />
-			<NumberDecrementStepper />
+			<NumberIncrementStepper border='none'/>
+			<NumberDecrementStepper border='none'/>
 		</NumberInputStepper>
 	</NumberInput>
 );

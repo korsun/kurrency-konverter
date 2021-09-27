@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { 
+	Box,
 	Button, 
 	Flex, 
 	Heading, 
+	IconButton,
 	VStack 
 } from '@chakra-ui/react';
 import CurrencyInput from './components/CurrencyInput';
 import CurrencySelect from './components/CurrencySelect';
+import ArrowIcon from './components/ArrowIcon';
 
 import { TResponse, TRates, TAccounts, TCurrency, TType } from './types';
 import { API_KEY, BASE, SYMBOLS } from './constants';
@@ -91,8 +94,8 @@ const App = (): JSX.Element => {
 
 		setAccounts({ 
 			...accounts, 
-			[from]: +accounts[from] + fromValNum, 
-			[to]: +accounts[to] + toValNum 
+			[from]: (+accounts[from] + fromValNum).toFixed(2), 
+			[to]: (+accounts[to] + toValNum).toFixed(2)
 		});
 	};
 
@@ -102,39 +105,80 @@ const App = (): JSX.Element => {
 		const key = type === 'from' ? from : to;
 		const inputVal = type === 'from' ? fromVal : toVal;
 
-		return <Flex>
-			<div data-testid={`account-${type}`}>
+		return <Box>
+			{type === 'from' && <Box
+				data-testid={`account-${type}`}
+				color='gray.500'
+				alignSelf='center'
+			>
 				Balance: {SYMBOLS[key]}{accounts[key]}
-			</div>
-			<CurrencySelect
-				type={type}
-				value={key}
-				currencies={accountsKeys}
-				onChange={handleSelect(type)}
-			/>
-			<CurrencyInput
-				type={type}
-				value={inputVal}
-				max={+accounts[key]}
-				onChange={handleChange(type)}
-			/>
-		</Flex>;
+			</Box>}
+			<Flex>
+				<CurrencySelect
+					type={type}
+					value={key}
+					currencies={accountsKeys}
+					onChange={handleSelect(type)}
+				/>
+				<CurrencyInput
+					type={type}
+					value={inputVal}
+					max={+accounts[key]}
+					onChange={handleChange(type)}
+				/>
+			</Flex>
+			{type === 'to' && <Box
+				data-testid={`account-${type}`}
+				color='gray.500'
+				alignSelf='center'
+				marginRight={4}
+			>
+				Balance: {SYMBOLS[key]}{accounts[key]}
+			</Box>}
+		</Box>;
 	};
 
 	console.log(rates);
 
-	return <VStack align='center' spacing={2}>
-		<Heading as='h1'>Sell {from}</Heading>
-		<span data-testid='rate'>{SYMBOLS[from]}1 = {SYMBOLS[to]}{(rates[to] / rates[from])}</span>
+	return <VStack align='center' padding={8} spacing={6}>
+		<Box>
+			<Heading as='h1' size='lg' marginBottom={1}>Sell {from}</Heading>
+			<Box data-testid='rate' color='gray.500'>
+				{SYMBOLS[from]}1 = {SYMBOLS[to]}{(rates[to] / rates[from]).toFixed(6)}
+			</Box>
+		</Box>
 
-		{renderBlock('from')}
-		{renderBlock('to')}
+		<Box position='relative'>
+			{renderBlock('from')}
+			
+			{renderBlock('to')}
 
-		<Button aria-label='reverse' onClick={handleReverse}>{!isReversed ? '⬇️' : '⬆️'}</Button>
+			<IconButton
+				icon={<ArrowIcon
+					color='cyan.400'
+				/>}
+				aria-label='reverse'
+				onClick={handleReverse}
+				variant='ghost'
+				size='lg'
+				transform={`rotate(${isReversed ? -45 : 145}deg)`}
+				isRound
+				_hover={{ bg: 'cyan.100' }}
+				_active={{ bg: 'cyan.100' }}
+				_focus={{ bg: 'cyan.100' }}
+				position='absolute'
+				top={'calc(50% - 24px)'}
+				right='75px'
+			/>
+		</Box>
 
 		<Button
 			aria-label='buy/sell'
 			onClick={handleClick}
+			colorScheme='cyan'
+			color='white'
+			size='lg'
+			width='200px'
 		>
 			{!isReversed ? `Sell ${from} for ${to}` : `Buy ${from} with ${to}`}
 		</Button>
