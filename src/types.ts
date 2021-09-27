@@ -5,6 +5,8 @@ export type TCurrency = 'USD' | 'EUR' | 'GBP'
 
 export type TType = 'from' | 'to'
 
+export type TSymbol = '$' | '€' | '£'
+
 export type TResponse = {
 	base: typeof BASE,
 	rates: {
@@ -30,4 +32,17 @@ export type TCurrencySelect = {
 	value: string,
 	currencies: TCurrency[],
 	onChange: (e: React.SyntheticEvent) => void
+}
+
+export type TBlock = {
+	type: TType,
+	account: string,
+	symbol: TSymbol,
+	handleChange: (type: TType) => (strValue: string) => void,
+	handleSelect: (type: TType) => (e: React.SyntheticEvent) => void,
+	isReversed: boolean,
+	accountsKeys: TCurrency[],
+	currency: TCurrency,
+	inputVal: string,
+	exceeds: boolean
 }

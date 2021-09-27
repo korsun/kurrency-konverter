@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { 
 	Box,
 	Button, 
-	Flex, 
 	Heading, 
 	IconButton,
 	VStack 
 } from '@chakra-ui/react';
-import CurrencyInput from './components/CurrencyInput';
-import CurrencySelect from './components/CurrencySelect';
+
+import Block from './components/Block';
 import ArrowIcon from './components/ArrowIcon';
 import ErrorPlaceholder from './components/ErrorPlaceholder';
 
@@ -111,44 +110,6 @@ const App = (): JSX.Element => {
 
 	const handleReverse = () => setReversed(!isReversed);
 
-	const renderBlock = (type: TType) => {
-		const key = type === 'from' ? from : to;
-		const inputVal = type === 'from' ? fromVal : toVal;
-		const exceeds = type === 'from' ? fromExceedsBalance : toExceedsBalance;
-
-		return <Box>
-			{type === 'from' && <Box
-				data-testid={`account-${type}`}
-				color={exceeds ? 'red.500' : 'gray.500'}
-				alignSelf='center'
-			>
-				Balance: {SYMBOLS[key]}{accounts[key]}
-			</Box>}
-			<Flex>
-				<CurrencySelect
-					type={type}
-					value={key}
-					currencies={accountsKeys}
-					onChange={handleSelect(type)}
-				/>
-				<CurrencyInput
-					type={type}
-					value={inputVal}
-					isInvalid={exceeds}
-					isReversed={isReversed}
-					onChange={handleChange(type)}
-				/>
-			</Flex>
-			{type === 'to' && <Box
-				data-testid={`account-${type}`}
-				color={exceeds ? 'red.500' : 'gray.500'}
-				alignSelf='center'
-			>
-				Balance: {SYMBOLS[key]}{accounts[key]}
-			</Box>}
-		</Box>;
-	};
-
 	console.log(rates);
 
 	if (hasError) {
@@ -164,9 +125,31 @@ const App = (): JSX.Element => {
 		</Box>
 
 		<Box position='relative'>
-			{renderBlock('from')}
+			<Block 
+				type='from'
+				account={accounts[from]}
+				symbol={SYMBOLS[from]}
+				handleChange={handleChange}
+				handleSelect={handleSelect}
+				isReversed={isReversed}
+				accountsKeys={accountsKeys}
+				currency={from}
+				inputVal={fromVal}
+				exceeds={fromExceedsBalance}
+			/>
 			
-			{renderBlock('to')}
+			<Block
+				type='to'
+				account={accounts[to]}
+				symbol={SYMBOLS[to]}
+				handleChange={handleChange}
+				handleSelect={handleSelect}
+				isReversed={isReversed}
+				accountsKeys={accountsKeys}
+				currency={to}
+				inputVal={toVal}
+				exceeds={toExceedsBalance}
+			/>
 
 			<IconButton
 				icon={<ArrowIcon
