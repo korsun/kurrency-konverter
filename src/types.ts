@@ -20,7 +20,8 @@ export type TAccounts = Record<TCurrency, string>
 export type TCurrencyInput = {
 	type: TType,
 	value: string,
-	max: number,
+	isInvalid: boolean,
+	isReversed: boolean,
 	onChange: (_: string, value: number) => void
 }
 

@@ -28,6 +28,8 @@ const App = (): JSX.Element => {
 
 	const getTypedKeys = Object.keys as <T extends Record<string, unknown>>(obj: T) => Array<keyof T>;
 	const accountsKeys = getTypedKeys(accounts);
+	const fromExceedsBalance = !isReversed && +fromVal > +accounts[from];
+	const toExceedsBalance = isReversed && +toVal > +accounts[to];
 
 	const fetchRates = () => {
 		fetch(`https://openexchangerates.org/api/latest.json?app_id=${API_KEY}&base=${BASE.toLowerCase()}`)
@@ -104,11 +106,12 @@ const App = (): JSX.Element => {
 	const renderBlock = (type: TType) => {
 		const key = type === 'from' ? from : to;
 		const inputVal = type === 'from' ? fromVal : toVal;
+		const exceeds = type === 'from' ? fromExceedsBalance : toExceedsBalance;
 
 		return <Box>
 			{type === 'from' && <Box
 				data-testid={`account-${type}`}
-				color='gray.500'
+				color={exceeds ? 'red.500' : 'gray.500'}
 				alignSelf='center'
 			>
 				Balance: {SYMBOLS[key]}{accounts[key]}
@@ -123,15 +126,15 @@ const App = (): JSX.Element => {
 				<CurrencyInput
 					type={type}
 					value={inputVal}
-					max={+accounts[key]}
+					isInvalid={exceeds}
+					isReversed={isReversed}
 					onChange={handleChange(type)}
 				/>
 			</Flex>
 			{type === 'to' && <Box
 				data-testid={`account-${type}`}
-				color='gray.500'
+				color={exceeds ? 'red.500' : 'gray.500'}
 				alignSelf='center'
-				marginRight={4}
 			>
 				Balance: {SYMBOLS[key]}{accounts[key]}
 			</Box>}
@@ -175,6 +178,7 @@ const App = (): JSX.Element => {
 		<Button
 			aria-label='buy/sell'
 			onClick={handleClick}
+			disabled={fromExceedsBalance || toExceedsBalance}
 			colorScheme='cyan'
 			color='white'
 			size='lg'
