@@ -35,13 +35,13 @@ const App = (): JSX.Element => {
 		fetch(`https://openexchangerates.org/api/latest.json?app_id=${API_KEY}&base=${BASE.toLowerCase()}`)
 			.then(raw => raw.json())
 			.then((data: TResponse) => {
-				setRates({
+				const newRates = {
 					[data.base]: 1,
 					EUR: data.rates.EUR,
 					GBP: data.rates.GBP
-				});
-				setToVal(String(data.rates.EUR.toFixed(2)));
-				setError(false);
+				} as TRates;
+
+				setRates(newRates);
 			})
 			.catch(() => {
 				setError(true);
@@ -54,6 +54,11 @@ const App = (): JSX.Element => {
 
 		return () => clearInterval(interval);
 	}, []);
+
+	useEffect(() => {
+		setToVal(String((+fromVal * (rates[to] / rates[from])).toFixed(2)));
+		setError(false);
+	}, [rates]);
 
 	const handleSelect = (type: TType) => (e: React.SyntheticEvent) => {
 		const target = e.target as HTMLSelectElement;
@@ -109,8 +114,6 @@ const App = (): JSX.Element => {
 	};
 
 	const handleReverse = () => setReversed(!isReversed);
-
-	console.log(rates);
 
 	if (hasError) {
 		return <ErrorPlaceholder />;
