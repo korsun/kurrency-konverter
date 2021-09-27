@@ -79,9 +79,14 @@ const App = (): JSX.Element => {
 
 	const handleChange = (type: TType) => (strValue: string) => {
 		const value = parse(strValue);
-		const [, decimals] = value.split('.');
+		const [, decimals, multiple] = value.split('.'); // disallow multiple dots
 
-		if (decimals && decimals.length > 2) {
+		if ((decimals && decimals.length > 2) || 
+		typeof multiple === 'string' || 
+		value.startsWith('.') || 
+		value.startsWith('0') ||
+		value.endsWith('+') ||
+		value.endsWith('-')) {
 			return;
 		}
 

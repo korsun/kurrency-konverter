@@ -111,7 +111,23 @@ describe('normal work', () => {
 });
 
 describe('crash tests', () => {
-	test.todo('validates the input');
+	it('validates the input', () => {
+		const inputFrom = screen.getByLabelText('from');
+
+		fireEvent.change(inputFrom, { target: { value: '' } });
+
+		fireEvent.change(inputFrom, { target: { value: '.' } });
+		expect(inputFrom).toHaveValue('');
+
+		fireEvent.change(inputFrom, { target: { value: '1.1.' } });
+		expect(inputFrom).toHaveValue('');
+
+		fireEvent.change(inputFrom, { target: { value: '0' } });
+		expect(inputFrom).toHaveValue('');
+
+		fireEvent.change(inputFrom, { target: { value: '1' } });
+		expect(inputFrom).toHaveValue('-1');
+	});
 
 	it('shows error when amount to trade is higher then availability', () => {
 		const selectFrom = screen.getByLabelText('select-from');
