@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import App from './App';
 
 const mockedResponse = {
@@ -44,13 +44,13 @@ describe('normal work', () => {
 		expect(globalRef.fetch).toHaveBeenCalledTimes(3);
 	});
 
-	it('renders elements with their init values', () => {
+	it('renders elements with their init values', async () => {
 		expect(screen.getByRole('heading')).toHaveTextContent('Sell USD');
 		expect(screen.getByLabelText('select-from')).toHaveValue('USD');
 		expect(screen.getByLabelText('select-to')).toHaveValue('EUR');
 		expect(screen.getByLabelText('from')).toHaveValue('-1');
 		expect(screen.getByTestId('account-from')).toHaveTextContent('Balance: $100');
-		expect(screen.getByLabelText('to')).toHaveValue('+0.85');
+		await waitFor(() => expect(screen.getByLabelText('to')).toHaveValue('+0.85'));
 		expect(screen.getByTestId('account-to')).toHaveTextContent('Balance: €200');
 	});
 
@@ -68,11 +68,13 @@ describe('normal work', () => {
 		expect(screen.getByTestId('account-to')).toHaveTextContent('Balance: £0');
 	});
 
-	it('converts currency on input change', () => {
+	it('converts currency on input change', async () => {
 		const inputFrom = screen.getByLabelText('from');
 		const inputTo = screen.getByLabelText('to');
 		const selectFrom = screen.getByLabelText('select-from');
 		const selectTo = screen.getByLabelText('select-to');
+
+		await waitFor(() => expect(screen.getByLabelText('to')).toHaveValue('+0.85'));
 
 		fireEvent.change(inputFrom, { target: { value: '10' } });
 
@@ -99,14 +101,16 @@ describe('normal work', () => {
 		expect(screen.getByLabelText('select-to')).toHaveValue('USD');
 	});
 
-	it('switches buy/sell direction on arrow click and correctly trades between the accounts', () => {
+	it('switches buy/sell direction on arrow click and correctly trades between the accounts', async () => {
 		const reverseButton = screen.getByLabelText('reverse');
 		const buyButton = screen.getByLabelText('buy/sell');
 
 		expect(buyButton).toHaveTextContent('Sell USD for EUR');
 		expect(screen.getByTestId('account-from')).toHaveTextContent('Balance: $100');
+		await waitFor(() => expect(screen.getByLabelText('to')).toHaveValue('+0.85'));
 
 		fireEvent.click(buyButton);
+
 		expect(screen.getByTestId('account-from')).toHaveTextContent('Balance: $99');
 		expect(screen.getByTestId('account-to')).toHaveTextContent('Balance: €200.85');
 		
