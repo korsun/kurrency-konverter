@@ -46,6 +46,7 @@ const Block = ({
 			data-testid={`account-${type}`}
 			color={exceeds ? 'red.500' : 'gray.500'}
 			alignSelf='center'
+			marginTop='6px'
 		>
 			Balance: {symbol}{account}
 		</Box>}
