@@ -49,10 +49,10 @@ const App = (): JSX.Element => {
 	};
 
 	useEffect(() => {
-		// const interval = setInterval(fetchRates, 10000);
+		const interval = setInterval(fetchRates, 10000);
 		fetchRates();
 
-		// return () => clearInterval(interval);
+		return () => clearInterval(interval);
 	}, []);
 
 	useEffect(() => {
